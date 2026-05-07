@@ -43,20 +43,18 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   List<VentaRango> _tablaVentas = defaultTablaVentas();
   Map<String, AderFuelMes> _fuelMeses = defaultFuelAderMeses();
   bool _costeConFuelIncluido = false;
+  String? _costeBaseParaAder;
 
   @override
   void initState() {
     super.initState();
-
     _tabController = TabController(length: 3, vsync: this);
-
     _cargarTabla();
     _cargarFuelMeses();
   }
 
   Future<void> _cargarTabla() async {
     final tablaGuardada = await cargarTablaVentas();
-
     if (!mounted) return;
 
     setState(() {
@@ -66,15 +64,12 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   Future<void> _guardarTabla() async {
     await guardarTablaVentas(_tablaVentas);
-
     if (!mounted) return;
-
     setState(() {});
   }
 
   Future<void> _cargarFuelMeses() async {
     final meses = await cargarFuelAderMeses();
-
     if (!mounted) return;
 
     setState(() {
@@ -89,14 +84,15 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   }
 
   void _marcarCosteManual() {
-    if (_costeConFuelIncluido) {
-      setState(() {
-        _costeConFuelIncluido = false;
-      });
-    }
+    setState(() {
+      _costeConFuelIncluido = false;
+      _costeBaseParaAder = null;
+    });
   }
 
   void _usarCosteConFuel(String coste) {
+    _costeBaseParaAder ??= _costeController.text;
+
     _costeController.text = coste;
 
     setState(() {
@@ -114,10 +110,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   }
 
   Tab _compactTab(String text) {
-    return Tab(
-      height: 36,
-      text: text,
-    );
+    return Tab(height: 36, text: text);
   }
 
   @override
@@ -141,14 +134,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               ),
               labelColor: Colors.deepPurple.shade900,
               unselectedLabelColor: Colors.black54,
-              labelStyle: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-              ),
-              unselectedLabelStyle: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-              ),
+              labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+              unselectedLabelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
               tabs: [
                 _compactTab('Calculadora'),
                 _compactTab('Tabla Ventas'),
@@ -166,6 +153,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             fuelMeses: _fuelMeses,
             costeController: _costeController,
             costeConFuelIncluido: _costeConFuelIncluido,
+            costeBaseParaAder: _costeBaseParaAder,
             onCosteManualChanged: _marcarCosteManual,
             onUsarCosteConFuel: _usarCosteConFuel,
             onFuelMesesChanged: _onFuelMesesChanged,

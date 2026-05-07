@@ -9,6 +9,7 @@ class CalculadoraTab extends StatefulWidget {
   final Map<String, AderFuelMes> fuelMeses;
   final TextEditingController costeController;
   final bool costeConFuelIncluido;
+  final String? costeBaseParaAder;
   final VoidCallback onCosteManualChanged;
   final ValueChanged<String> onUsarCosteConFuel;
   final ValueChanged<Map<String, AderFuelMes>> onFuelMesesChanged;
@@ -20,6 +21,7 @@ class CalculadoraTab extends StatefulWidget {
     required this.fuelMeses,
     required this.costeController,
     required this.costeConFuelIncluido,
+    required this.costeBaseParaAder,
     required this.onCosteManualChanged,
     required this.onUsarCosteConFuel,
     required this.onFuelMesesChanged,
@@ -158,21 +160,23 @@ class _CalculadoraTabState extends State<CalculadoraTab> {
               final max = esSinAprobacion ? min : double.tryParse(maxCtrl.text.replaceAll(',', '.'));
 
               if (min != null && max != null) {
+                final nuevosResultados = _resultados.map((r) {
+                  if (r.nombre != nombre) return r;
+
+                  return ResultadoCategoria(
+                    nombre: r.nombre,
+                    coste: r.coste,
+                    margenMin: min,
+                    margenMax: max,
+                    margenActual: min,
+                    color: r.color,
+                    aceptadoDebajoMin: r.aceptadoDebajoMin,
+                  );
+                }).toList();
+
                 setState(() {
-                  if (esSinAprobacion) {
-                    _rangoSeleccionado!.sinAprobacion = min;
-                  } else {
-                    margen!.min = min;
-                    margen.max = max;
-                  }
-
-                  if (_costeActual != null) {
-                    _rangoSeleccionado = buscarRangoPorCoste(_costeActual!, widget.tablaVentas);
-                    _resultados = calcularResultados(_costeActual!, _rangoSeleccionado!);
-                  }
+                  _resultados = nuevosResultados;
                 });
-
-                widget.onTablaChanged();
               }
 
               Navigator.of(context).pop();
@@ -192,6 +196,10 @@ class _CalculadoraTabState extends State<CalculadoraTab> {
     final labelCoste = widget.costeConFuelIncluido
         ? 'Coste proveedor con fuel incluido'
         : 'Coste proveedor';
+
+    final aderCosteText = widget.costeConFuelIncluido
+        ? (widget.costeBaseParaAder ?? widget.costeController.text)
+        : widget.costeController.text;
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -227,6 +235,7 @@ class _CalculadoraTabState extends State<CalculadoraTab> {
               AderActionsButton(
                 fuelMeses: widget.fuelMeses,
                 costeController: widget.costeController,
+                aderCosteText: aderCosteText,
                 onUsarCosteConFuel: widget.onUsarCosteConFuel,
                 onFuelMesesChanged: widget.onFuelMesesChanged,
               ),

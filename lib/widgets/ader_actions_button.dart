@@ -13,6 +13,7 @@ enum AderAction {
 class AderActionsButton extends StatelessWidget {
   final Map<String, AderFuelMes> fuelMeses;
   final TextEditingController costeController;
+  final String aderCosteText;
   final ValueChanged<String> onUsarCosteConFuel;
   final ValueChanged<Map<String, AderFuelMes>> onFuelMesesChanged;
 
@@ -20,6 +21,7 @@ class AderActionsButton extends StatelessWidget {
     super.key,
     required this.fuelMeses,
     required this.costeController,
+    required this.aderCosteText,
     required this.onUsarCosteConFuel,
     required this.onFuelMesesChanged,
   });
@@ -93,7 +95,7 @@ class AderActionsButton extends StatelessWidget {
 
   void _mostrarImporteConFuel(BuildContext context) {
     final mesFuel = ultimoFuelMes(fuelMeses);
-    final res = calcularAderFuel(costeController.text, mesFuel);
+    final res = calcularAderFuel(aderCosteText, mesFuel);
 
     showDialog(
       context: context,
@@ -143,7 +145,7 @@ class AderActionsButton extends StatelessWidget {
 
   void _mostrarPlantillaCorreo(BuildContext context) {
     final mesFuel = ultimoFuelMes(fuelMeses);
-    final res = calcularAderFuel(costeController.text, mesFuel);
+    final res = calcularAderFuel(aderCosteText, mesFuel);
 
     showDialog(
       context: context,
@@ -194,10 +196,40 @@ class AderActionsButton extends StatelessWidget {
       builder: (context) => Dialog(
         child: SizedBox(
           width: 920,
-          height: 620,
-          child: EditorFuelTab(
-            meses: fuelMeses,
-            onMesesChanged: onFuelMesesChanged,
+          height: 660,
+          child: Column(
+            children: [
+              Container(
+                height: 48,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                color: Colors.green.shade700,
+                child: Row(
+                  children: [
+                    const Expanded(
+                      child: Text(
+                        'Modificar fuel',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      tooltip: 'Cerrar',
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: EditorFuelTab(
+                  meses: fuelMeses,
+                  onMesesChanged: onFuelMesesChanged,
+                ),
+              ),
+            ],
           ),
         ),
       ),

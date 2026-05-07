@@ -145,11 +145,12 @@ List<VentaRango> defaultTablaVentas() {
 VentaRango buscarRangoPorCoste(double coste, List<VentaRango> tablaVentas) {
   for (final rango in tablaVentas) {
     final venta = calcularVenta(coste, rango.sinAprobacion ?? 0);
-    if (venta >= rango.ventaDesde &&
-        (rango.ventaHasta == null || venta <= rango.ventaHasta!)) {
+
+    if (rango.ventaHasta == null || venta <= rango.ventaHasta!) {
       return rango;
     }
   }
+
   return tablaVentas.last;
 }
 
