@@ -36,7 +36,6 @@ class _CalculadoraTabState extends State<CalculadoraTab> {
   String? _errorTexto;
   VentaRango? _rangoSeleccionado;
   List<ResultadoCategoria> _resultados = [];
-  double? _costeActual;
 
   @override
   void initState() {
@@ -68,7 +67,6 @@ class _CalculadoraTabState extends State<CalculadoraTab> {
 
     setState(() {
       if (value.trim().isEmpty) {
-        _costeActual = null;
         _errorTexto = null;
         _rangoSeleccionado = null;
         _resultados = [];
@@ -78,14 +76,12 @@ class _CalculadoraTabState extends State<CalculadoraTab> {
       final parsed = parseMoneyLike(value);
 
       if (parsed == null || parsed <= 0) {
-        _costeActual = null;
         _errorTexto = 'Introduce un coste válido mayor que cero';
         _rangoSeleccionado = null;
         _resultados = [];
         return;
       }
 
-      _costeActual = parsed;
       _errorTexto = null;
       _rangoSeleccionado = buscarRangoPorCoste(parsed, widget.tablaVentas);
       _resultados = calcularResultados(parsed, _rangoSeleccionado!);
@@ -126,8 +122,12 @@ class _CalculadoraTabState extends State<CalculadoraTab> {
 
     if (!esSinAprobacion && margen == null) return;
 
-    final minActual = esSinAprobacion ? _rangoSeleccionado!.sinAprobacion! : margen!.min;
-    final maxActual = esSinAprobacion ? _rangoSeleccionado!.sinAprobacion! : margen!.max;
+    final minActual = esSinAprobacion
+        ? _rangoSeleccionado!.sinAprobacion!
+        : margen!.min;
+    final maxActual = esSinAprobacion
+        ? _rangoSeleccionado!.sinAprobacion!
+        : margen!.max;
 
     final minCtrl = TextEditingController(text: _formatDouble(minActual));
     final maxCtrl = TextEditingController(text: _formatDouble(maxActual));
@@ -141,23 +141,34 @@ class _CalculadoraTabState extends State<CalculadoraTab> {
           children: [
             TextField(
               controller: minCtrl,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(labelText: esSinAprobacion ? 'Margen %' : 'Mínimo %'),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: InputDecoration(
+                labelText: esSinAprobacion ? 'Margen %' : 'Mínimo %',
+              ),
             ),
             if (!esSinAprobacion)
               TextField(
                 controller: maxCtrl,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 decoration: const InputDecoration(labelText: 'Máximo %'),
               ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancelar')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancelar'),
+          ),
           TextButton(
             onPressed: () {
               final min = double.tryParse(minCtrl.text.replaceAll(',', '.'));
-              final max = esSinAprobacion ? min : double.tryParse(maxCtrl.text.replaceAll(',', '.'));
+              final max = esSinAprobacion
+                  ? min
+                  : double.tryParse(maxCtrl.text.replaceAll(',', '.'));
 
               if (min != null && max != null) {
                 final nuevosResultados = _resultados.map((r) {
@@ -216,11 +227,19 @@ class _CalculadoraTabState extends State<CalculadoraTab> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(labelCoste, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                    Text(
+                      labelCoste,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     TextField(
                       controller: widget.costeController,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
                       decoration: InputDecoration(
                         hintText: 'Coste en €',
                         border: const OutlineInputBorder(),
@@ -245,9 +264,17 @@ class _CalculadoraTabState extends State<CalculadoraTab> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Rango seleccionado', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                      const Text(
+                        'Rango seleccionado',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                       const SizedBox(height: 8),
-                      Text('${_rangoSeleccionado!.ventaDesde.toInt()} – ${_rangoSeleccionado!.ventaHasta?.toInt() ?? '∞'}'),
+                      Text(
+                        '${_rangoSeleccionado!.ventaDesde.toInt()} – ${_rangoSeleccionado!.ventaHasta?.toInt() ?? '∞'}',
+                      ),
                     ],
                   ),
                 ),
@@ -255,7 +282,10 @@ class _CalculadoraTabState extends State<CalculadoraTab> {
           ),
           if (_resultados.isNotEmpty) ...[
             const SizedBox(height: 20),
-            const Text('Resultados por rol', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            const Text(
+              'Resultados por rol',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
             const SizedBox(height: 12),
             Expanded(
               child: ListView(
@@ -270,7 +300,9 @@ class _CalculadoraTabState extends State<CalculadoraTab> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       color: color.withOpacity(0.10),
-                      border: Border.all(color: warning ? Colors.red : color.withOpacity(0.4)),
+                      border: Border.all(
+                        color: warning ? Colors.red : color.withOpacity(0.4),
+                      ),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
@@ -282,10 +314,16 @@ class _CalculadoraTabState extends State<CalculadoraTab> {
                               ElevatedButton(
                                 onPressed: () => _editarMargenes(r.nombre),
                                 style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 4,
+                                  ),
                                   minimumSize: const Size(0, 32),
                                 ),
-                                child: const Text('Editar margen', style: TextStyle(fontSize: 12)),
+                                child: const Text(
+                                  'Editar margen',
+                                  style: TextStyle(fontSize: 12),
+                                ),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -331,7 +369,12 @@ class _CalculadoraTabState extends State<CalculadoraTab> {
                             const SizedBox(height: 4),
                             Row(
                               children: [
-                                Expanded(child: Text('Máx: ${_formatDouble(r.margenMax)}%', style: const TextStyle(fontSize: 12))),
+                                Expanded(
+                                  child: Text(
+                                    'Máx: ${_formatDouble(r.margenMax)}%',
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                ),
                                 Expanded(
                                   child: SelectableText(
                                     'Venta: ${_formatMoney(r.ventaMax)}',
@@ -359,11 +402,20 @@ class _CalculadoraTabState extends State<CalculadoraTab> {
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.red,
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 4,
+                                ),
                                 minimumSize: const Size(0, 32),
                               ),
                               onPressed: () => _aceptarDebajoMin(index),
-                              child: const Text('Aceptar', style: TextStyle(fontSize: 12, color: Colors.white)),
+                              child: const Text(
+                                'Aceptar',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
                           ],
                         ],

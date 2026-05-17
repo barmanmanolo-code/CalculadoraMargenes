@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import 'fuel_ader_storage.dart';
 import 'models.dart';
@@ -36,19 +36,18 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
-  late TabController _tabController;
+class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _costeController = TextEditingController();
 
   List<VentaRango> _tablaVentas = defaultTablaVentas();
   Map<String, AderFuelMes> _fuelMeses = defaultFuelAderMeses();
   bool _costeConFuelIncluido = false;
   String? _costeBaseParaAder;
+  int _selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
     _cargarTabla();
     _cargarFuelMeses();
   }
@@ -97,56 +96,45 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
     setState(() {
       _costeConFuelIncluido = true;
+      _selectedIndex = 0;
     });
-
-    _tabController.animateTo(0);
   }
 
   @override
   void dispose() {
     _costeController.dispose();
-    _tabController.dispose();
     super.dispose();
-  }
-
-  Tab _compactTab(String text) {
-    return Tab(height: 36, text: text);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: TabBar(
-              controller: _tabController,
-              isScrollable: true,
-              tabAlignment: TabAlignment.start,
-              labelPadding: const EdgeInsets.symmetric(horizontal: 12),
-              indicatorSize: TabBarIndicatorSize.tab,
-              indicator: BoxDecoration(
-                color: Colors.deepPurple.shade100,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              labelColor: Colors.deepPurple.shade900,
-              unselectedLabelColor: Colors.black54,
-              labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-              unselectedLabelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-              tabs: [
-                _compactTab('Calculadora'),
-                _compactTab('Tabla Ventas'),
-                _compactTab('Ayuda'),
-              ],
-            ),
+      appBar: AppBar(title: Text(widget.title)),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: (index) {
+          setState(() => _selectedIndex = index);
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.calculate_outlined),
+            selectedIcon: Icon(Icons.calculate),
+            label: 'Calculadora',
           ),
-        ),
+          NavigationDestination(
+            icon: Icon(Icons.table_chart_outlined),
+            selectedIcon: Icon(Icons.table_chart),
+            label: 'Tabla',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.help_outline),
+            selectedIcon: Icon(Icons.help),
+            label: 'Ayuda',
+          ),
+        ],
       ),
-      body: TabBarView(
-        controller: _tabController,
+      body: IndexedStack(
+        index: _selectedIndex,
         children: [
           CalculadoraTab(
             tablaVentas: _tablaVentas,
